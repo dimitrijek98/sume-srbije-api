@@ -172,14 +172,14 @@ app.post('/newTreeAndStatistics', (req, res) => {
     let tip = req.body.tip;
     let naziv = req.body.naziv;
     query = 'INSER INTO \"Drvo\" (\"drvoID\", \"tipID\", naziv) VALUES (?, ?, ?))';
-    const params = [drvo, tip, naziv];
+    let params = [drvo, tip, naziv];
     client.execute(query, params, { prepare: true })
         .then(response => {
             if (response.rows.length < 1) {
                 res.status(404).send("Tree not found.");
                 return;
             }
-            res.status(200).send("Tree has been added.");
+            //.status(200).send("Tree has been added.");
         })
         .catch(err => console.log(err));
 
@@ -226,7 +226,7 @@ app.post('/newTreeAndStatistics', (req, res) => {
     let povrsPosecena = req.body.povrsPosecena;
     let povrsZasadjena = req.body.povrsZasadjena;
     query = 'INSER INTO \"Suma\" (\"sumaID\", mesec, godina, \"regID\", \"drvoID\", posecenabr, posecenapovrs, zasadjenabr, zasadjenapovrs) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?))';
-    const params = [suma, mesec, godina, region, drvo, brPosecena, povrsPosecena, brZasadjena, povrsZasadjena];
+    params = [suma, mesec, godina, region, drvo, brPosecena, povrsPosecena, brZasadjena, povrsZasadjena];
     client.execute(query, params, { prepare: true })
         .then(response => {
             if (response.rows.length < 1) {
@@ -243,7 +243,7 @@ app.post('/newTreeAndStatistics', (req, res) => {
 app.get('/AllPlantings', (req, res) => {
     const query = 'SELECT mesec, zasadjenabr FROM \"Suma\" WHERE godina = ?';
     let d = new Date();
-    const params = [d.getFullYear()];
+    const params = [d.getFullYear()];//idi na sve -1 da bi sve isao za proslu godinu
     client.execute(query, params, { prepare: true })
         .then(response => {
             if (response.rows.length < 1) {
@@ -506,7 +506,8 @@ app.get('/regionPlantingsAndCuts', (req, res) => {
             nizZasadjena.push(pom);
             pom = { mesec: "Dec", broj: decPosecena };
             nizPosecena.push(pom);
-            res.status(200).send(JSON.stringify(nizZasadjena),JSON.stringify(nizPosecena)); //jel ovo dobro?
+            let returnArr = {posecena:nizPosecena, zasadjena:nizZasadjena};
+            res.status(200).send(JSON.stringify(returnArr));
         })
         .catch(err => console.log(err));
 });
