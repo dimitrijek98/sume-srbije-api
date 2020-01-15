@@ -78,7 +78,6 @@ app.get('/AllRegions', (req, res) => {
 //brisanje drveta iz baze
 app.post('/deleteTree', (req, res) => {
     let drvo = req.body.drvo;
-    console.log(req.body);
     let query = 'DELETE FROM \"Drvo\" WHERE \"drvoID\" = ?';
     const params = [drvo];
     client.execute(query, params, {hints: ['int']},{ prepare: true })
