@@ -23,4 +23,5 @@ Kverijima se:
     -omogucuje uklanjanje neke vrste drveta
         (kao parametar prosledjuje se id drveta)
 
+Statisticki prikaz vrsi se samo za podatke unete prosle godine, svaki novi uneseni podatak uz sebe pamti i mesec i godinu na osnovu dana unosa. Klijent ce moci da ih vidi tek pocetkom sledece godine. Za potrebe testiranja novih podataka moguce je u index.js fajlu odraditi find and replace d.getFullYear() - 1 sa d.getFullYear(). Ovo se javlja u linijama 189, 269, 323, 452 i 479.
 Backend se pokrece na http://localhost:4000.
