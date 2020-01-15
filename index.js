@@ -77,10 +77,11 @@ app.get('/AllRegions', (req, res) => {
 
 //brisanje drveta iz baze
 app.post('/deleteTree', (req, res) => {
-    let drvo = req.query.drvo;
+    let drvo = req.body.drvo;
+    console.log(req.body);
     let query = 'DELETE FROM \"Drvo\" WHERE \"drvoID\" = ?';
     const params = [drvo];
-    client.execute(query, params, { prepare: true })
+    client.execute(query, params, {hints: ['int']},{ prepare: true })
         .then(response => {
             res.status(200).send("Tree has been deleted.");
         })
@@ -89,27 +90,6 @@ app.post('/deleteTree', (req, res) => {
 
 //unos nove statistike
 app.post('/newStatistics', (req, res) => {
-    /* let query = 'SELECT next_id FROM "IDs" WHERE id_name = ?';
-     let suma;
-     client.execute(query, ['suma'])
-         .then(response => {
-             if (response.rows.length < 1) {
-                 res.status(404).send("ID not found.");
-                 return;
-             }
-             suma = response.rows[0].next_id;
-         })
-         .catch(err => console.log(err));
-     let id = suma + 1;
-     query = 'UPDATE "IDs" SET next_id = ? WHERE id_name= ?';
-     client.execute(query, [id, 'suma'])
-         .then(response => {
-             if (response.rows.length < 1) {
-                 res.status(404).send("ID not found.");
-                 return;
-             }
-         })
-         .catch(err => console.log(err));*/
     var d = new Date();
     var month = new Array();
     month[0] = "Januar";
@@ -126,20 +106,17 @@ app.post('/newStatistics', (req, res) => {
     month[11] = "Decembar";
     let mesec = month[d.getMonth()];
     let godina = d.getFullYear();
-    let region = req.query.region;
-    let drvo = req.query.drvo;
-    let brPosecena = req.query.brPosecena;
-    let brZasadjena = req.query.brZasadjena;
-    let povrsPosecena = req.query.povrsPosecena;
-    let povrsZasadjena = req.query.povrsZasadjena;
+    let reg = req.body.region;
+    let drvo = req.body.drvo;
+    let brPosecena = req.body.brPosecena;
+    let brZasadjena = req.body.brZasadjena;
+    let povrsPosecena = req.body.povrsPosecena;
+    let povrsZasadjena = req.body.povrsZasadjena;
     let query = 'INSERT INTO \"Suma\" (godina, mesec, \"regID\", \"drvoID\", posecenabr, posecenapovrs, zasadjenabr, zasadjenapovrs) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
-    const params = [godina, mesec, region, drvo, brPosecena, povrsPosecena, brZasadjena, povrsZasadjena];
+    const params = [godina, mesec, reg, drvo, brPosecena, povrsPosecena, brZasadjena, povrsZasadjena];
     client.execute(query, params, { prepare: true })
         .then(response => {
-            if (response.rows.length < 1) {
-                res.status(404).send("Forest not found.");
-                return;
-            }
+            //insert ne vraca nista pa nema provere, kada bi imali makar dve kopije baze mogli bi da koristimo IF NOT EXISTS u insert
             res.status(200).send("Forest has been added.");
         })
         .catch(err => console.log(err));
@@ -147,92 +124,60 @@ app.post('/newStatistics', (req, res) => {
 
 //unos novog drveta i njegove statistike
 app.post('/newTreeAndStatistics', (req, res) => {
-    let query = 'SELECT next_id FROM "IDs" WHERE id_name = ?';
+    let query = 'SELECT next_id FROM \"IDs\" WHERE id_name = ?';
     let drvo;
-    client.execute(query, ['drvo'])
-        .then(response => {
-            if (response.rows.length < 1) {
+    client.execute(query, ['Drvo'])
+        .then(responseS => {
+            if (responseS.rows.length < 1) {
                 res.status(404).send("ID not found.");
                 return;
             }
-            drvo = response.rows[0].next_id;
-        })
-        .catch(err => console.log(err));
-    let id = drvo + 1;
-    query = 'UPDATE "IDs" SET next_id = ? WHERE id_name= ?';
-    client.execute(query, [id, 'drvo'])
-        .then(response => {
-            if (response.rows.length < 1) {
-                res.status(404).send("ID not found.");
-                return;
-            }
-        })
-        .catch(err => console.log(err));
-    let tip = req.query.tip;
-    let naziv = req.query.naziv;
-    query = 'INSERT INTO \"Drvo\" (\"drvoID\", \"tipID\", naziv) VALUES (?, ?, ?)';
-    let params = [drvo, tip, naziv];
-    client.execute(query, params, { prepare: true })
-        .then(response => {
-            if (response.rows.length < 1) {
-                res.status(404).send("Tree not added.");
-                return;
-            }
-            //.status(200).send("Tree has been added.");
-        })
-        .catch(err => console.log(err));
-
-    /*query = 'SELECT next_id FROM "IDs" WHERE id_name = ?';
-    let suma;
-    client.execute(query, ['suma'])
-        .then(response => {
-            if (response.rows.length < 1) {
-                res.status(404).send("ID not found.");
-                return;
-            }
-            suma = response.rows[0].next_id;
-        })
-        .catch(err => console.log(err));
-    id = suma + 1;
-    query = 'UPDATE "IDs" SET next_id = ? WHERE id_name= ?';
-    client.execute(query, [id, 'suma'])
-        .then(response => {
-            if (response.rows.length < 1) {
-                res.status(404).send("ID not found.");
-                return;
-            }
-        })
-        .catch(err => console.log(err));*/
-    var d = new Date();
-    var month = new Array();
-    month[0] = "Januar";
-    month[1] = "Februar";
-    month[2] = "Mart";
-    month[3] = "April";
-    month[4] = "Maj";
-    month[5] = "Jun";
-    month[6] = "Jul";
-    month[7] = "Avgust";
-    month[8] = "Septembar";
-    month[9] = "Oktobar";
-    month[10] = "Novembar";
-    month[11] = "Decembar";
-    let mesec = month[d.getMonth()];
-    let godina = d.getFullYear();
-    let region = req.query.region;
-    let brPosecena = req.query.brPosecena;
-    let brZasadjena = req.query.brZasadjena;
-    let povrsPosecena = req.query.povrsPosecena;
-    let povrsZasadjena = req.query.povrsZasadjena;
-    query = 'INSERT INTO \"Suma\" (godina, mesec, \"regID\", \"drvoID\", posecenabr, posecenapovrs, zasadjenabr, zasadjenapovrs) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
-    params = [godina, mesec, region, drvo, brPosecena, povrsPosecena, brZasadjena, povrsZasadjena];
-    client.execute(query, params, { prepare: true })
-        .then(response => {
-            if (response.rows.length < 1) {
-                res.status(404).send("Forest not found.");
-                return;
-            }
-            res.status(200).send("Forest has been added.");
+            drvo = responseS.rows[0].next_id;
+            let id = drvo + 1;
+            query = 'UPDATE \"IDs\" SET next_id = ? WHERE id_name= ?';
+            client.execute(query, [id, 'Drvo'], {hints: ['int', 'text']})
+                .then(responseU => {
+                    //upadate ne vraca nista pa nema provere, kada bi imali makar dve kopije baze mogli bi da koristimo IF Exists u uupdate
+                    let tip = req.body.tip;
+                    let naziv = req.body.naziv;
+                    query = 'INSERT INTO \"Drvo\" (\"drvoID\", \"tipID\", naziv) VALUES (?, ?, ?)';
+                    let params = [drvo, tip, naziv];
+                    client.execute(query, params, { prepare: true })
+                        .then(responseI => {
+                            //insert ne vraca nista pa nema provere, kada bi imali makar dve kopije baze mogli bi da koristimo IF NOT EXISTS u insert
+                            var d = new Date();
+                            var month = new Array();
+                            month[0] = "Januar";
+                            month[1] = "Februar";
+                            month[2] = "Mart";
+                            month[3] = "April";
+                            month[4] = "Maj";
+                            month[5] = "Jun";
+                            month[6] = "Jul";
+                            month[7] = "Avgust";
+                            month[8] = "Septembar";
+                            month[9] = "Oktobar";
+                            month[10] = "Novembar";
+                            month[11] = "Decembar";
+                            let mesec = month[d.getMonth()];
+                            let godina = d.getFullYear();
+                            let region = req.body.region;
+                            let brPosecena = req.body.brPosecena;
+                            let brZasadjena = req.body.brZasadjena;
+                            let povrsPosecena = req.body.povrsPosecena;
+                            let povrsZasadjena = req.body.povrsZasadjena;
+                            query = 'INSERT INTO \"Suma\" (godina, mesec, \"regID\", \"drvoID\", posecenabr, posecenapovrs, zasadjenabr, zasadjenapovrs) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
+                            params = [godina, mesec, region, drvo, brPosecena, povrsPosecena, brZasadjena, povrsZasadjena];
+                            client.execute(query, params, { prepare: true })
+                                .then(responseII => {
+                                    //insert ne vraca nista pa nema provere, kada bi imali makar dve kopije baze mogli bi da koristimo IF NOT EXISTS u insert
+                                    res.status(200).send("Forest has been added.");
+                                })
+                                .catch(err => console.log(err));
+                        })
+                        .catch(err => console.log(err));
+                })
+                .catch(err => console.log(err));
         })
         .catch(err => console.log(err));
 });
@@ -335,7 +280,7 @@ app.get('/monthCuts', (req, res) => {
             let istocna = 0;
             let juzna = 0;
             let kim = 0;
-            
+
             response.rows.forEach(e => {
                 if (e.regID === 1)
                     vojvodina += e.posecenabr;
@@ -364,7 +309,7 @@ app.get('/monthCuts', (req, res) => {
             niz.push(pom);
             pom = { region: "6", broj: kim };
             niz.push(pom);
-            
+
             res.status(200).send(JSON.stringify(niz));
         })
         .catch(err => console.log(err));
@@ -460,27 +405,27 @@ app.get('/regionPlantingsAndCuts', (req, res) => {
             let niz = [];
             let pom = { mesec: "Jan", brojZ: janZasadjena, brojP: janPosecena };
             niz.push(pom);
-            pom = { mesec: "Feb", brojZ: febZasadjena , brojP: febPosecena };
+            pom = { mesec: "Feb", brojZ: febZasadjena, brojP: febPosecena };
             niz.push(pom);
-            pom = { mesec: "Mar", brojZ: marZasadjena , brojP: marPosecena };
+            pom = { mesec: "Mar", brojZ: marZasadjena, brojP: marPosecena };
             niz.push(pom);
-            pom = { mesec: "Apr", brojZ: aprZasadjena , brojP: aprPosecena };
+            pom = { mesec: "Apr", brojZ: aprZasadjena, brojP: aprPosecena };
             niz.push(pom);
-            pom = { mesec: "Maj", brojZ: majZasadjena , brojP: majPosecena };
+            pom = { mesec: "Maj", brojZ: majZasadjena, brojP: majPosecena };
             niz.push(pom);
-            pom = { mesec: "Jun", brojZ: junZasadjena , brojP: junPosecena };
+            pom = { mesec: "Jun", brojZ: junZasadjena, brojP: junPosecena };
             niz.push(pom);
-            pom = { mesec: "Jul", brojZ: julZasadjena , brojP: julPosecena };
+            pom = { mesec: "Jul", brojZ: julZasadjena, brojP: julPosecena };
             niz.push(pom);
             pom = { mesec: "Avg", brojZ: avgZasadjena, brojP: avgPosecena };
             niz.push(pom);
             pom = { mesec: "Sep", brojZ: sepZasadjena, brojP: sepPosecena };
             niz.push(pom);
-            pom = { mesec: "Okt", brojZ: oktZasadjena , brojP: oktPosecena };
+            pom = { mesec: "Okt", brojZ: oktZasadjena, brojP: oktPosecena };
             niz.push(pom);
-            pom = { mesec: "Nov", brojZ: novZasadjena , brojP: novPosecena };
+            pom = { mesec: "Nov", brojZ: novZasadjena, brojP: novPosecena };
             niz.push(pom);
-            pom = { mesec: "Dec", brojZ: decZasadjena , brojP: decPosecena };
+            pom = { mesec: "Dec", brojZ: decZasadjena, brojP: decPosecena };
             niz.push(pom);
             res.status(200).send(JSON.stringify(niz));
         })
