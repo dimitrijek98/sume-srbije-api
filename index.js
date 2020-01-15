@@ -17,7 +17,6 @@ app.get('/', (req, res) => {
 });
 
 app.post('/login', (req, res) => {
-    console.log(req.body);
     let email = req.body.email;
     let password = req.body.password;
     let query = 'SELECT * FROM \"Admin\" WHERE email = ?';
@@ -78,7 +77,7 @@ app.get('/AllRegions', (req, res) => {
 
 //brisanje drveta iz baze
 app.post('/deleteTree', (req, res) => {
-    let drvo = req.body.drvo;
+    let drvo = req.query.drvo;
     let query = 'DELETE FROM \"Drvo\" WHERE \"drvoID\" = ?';
     const params = [drvo];
     client.execute(query, params, { prepare: true })
@@ -127,12 +126,12 @@ app.post('/newStatistics', (req, res) => {
     month[11] = "Decembar";
     let mesec = month[d.getMonth()];
     let godina = d.getFullYear();
-    let region = req.body.region;
-    let drvo = req.body.drvo;
-    let brPosecena = req.body.brPosecena;
-    let brZasadjena = req.body.brZasadjena;
-    let povrsPosecena = req.body.povrsPosecena;
-    let povrsZasadjena = req.body.povrsZasadjena;
+    let region = req.query.region;
+    let drvo = req.query.drvo;
+    let brPosecena = req.query.brPosecena;
+    let brZasadjena = req.query.brZasadjena;
+    let povrsPosecena = req.query.povrsPosecena;
+    let povrsZasadjena = req.query.povrsZasadjena;
     let query = 'INSERT INTO \"Suma\" (godina, mesec, \"regID\", \"drvoID\", posecenabr, posecenapovrs, zasadjenabr, zasadjenapovrs) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
     const params = [godina, mesec, region, drvo, brPosecena, povrsPosecena, brZasadjena, povrsZasadjena];
     client.execute(query, params, { prepare: true })
@@ -169,8 +168,8 @@ app.post('/newTreeAndStatistics', (req, res) => {
             }
         })
         .catch(err => console.log(err));
-    let tip = req.body.tip;
-    let naziv = req.body.naziv;
+    let tip = req.query.tip;
+    let naziv = req.query.naziv;
     query = 'INSERT INTO \"Drvo\" (\"drvoID\", \"tipID\", naziv) VALUES (?, ?, ?)';
     let params = [drvo, tip, naziv];
     client.execute(query, params, { prepare: true })
@@ -220,11 +219,11 @@ app.post('/newTreeAndStatistics', (req, res) => {
     month[11] = "Decembar";
     let mesec = month[d.getMonth()];
     let godina = d.getFullYear();
-    let region = req.body.region;
-    let brPosecena = req.body.brPosecena;
-    let brZasadjena = req.body.brZasadjena;
-    let povrsPosecena = req.body.povrsPosecena;
-    let povrsZasadjena = req.body.povrsZasadjena;
+    let region = req.query.region;
+    let brPosecena = req.query.brPosecena;
+    let brZasadjena = req.query.brZasadjena;
+    let povrsPosecena = req.query.povrsPosecena;
+    let povrsZasadjena = req.query.povrsZasadjena;
     query = 'INSERT INTO \"Suma\" (godina, mesec, \"regID\", \"drvoID\", posecenabr, posecenapovrs, zasadjenabr, zasadjenapovrs) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
     params = [godina, mesec, region, drvo, brPosecena, povrsPosecena, brZasadjena, povrsZasadjena];
     client.execute(query, params, { prepare: true })
@@ -320,7 +319,7 @@ app.get('/AllPlantings', (req, res) => {
 
 //drugi grafik, na osnovu prosledjenog meseca vraca broj posecenih u svakoj regiji
 app.get('/monthCuts', (req, res) => {
-    let mesec = req.body.mesec;
+    let mesec = req.query.mesec;
     let query = 'SELECT \"regID\", posecenabr FROM \"Suma\" WHERE godina = ? AND mesec = ?';
     let d = new Date();
     const params = [d.getFullYear() - 1, mesec];
@@ -336,18 +335,19 @@ app.get('/monthCuts', (req, res) => {
             let istocna = 0;
             let juzna = 0;
             let kim = 0;
+            
             response.rows.forEach(e => {
-                if (e.regID === "1")
+                if (e.regID === 1)
                     vojvodina += e.posecenabr;
-                else if (e.regID === "2")
+                else if (e.regID === 2)
                     zapadna += e.posecenabr;
-                else if (e.regID === "3")
+                else if (e.regID === 3)
                     centralna += e.posecenabr;
-                else if (e.regID === "4")
+                else if (e.regID === 4)
                     istocna += e.posecenabr;
-                else if (e.regID === "5")
+                else if (e.regID === 5)
                     juzna += e.posecenabr;
-                else if (e.regID === "6")
+                else if (e.regID === 6)
                     kim += e.posecenabr;
 
             });
@@ -355,15 +355,16 @@ app.get('/monthCuts', (req, res) => {
             let pom = { region: "1", broj: vojvodina };
             niz.push(pom);
             pom = { region: "2", broj: zapadna };
-            niz.pushregion;
+            niz.push(pom);
             pom = { region: "3", broj: centralna };
-            niz.pushregion;
+            niz.push(pom);
             pom = { region: "4", broj: istocna };
-            niz.pushregion;
+            niz.push(pom);
             pom = { region: "5", broj: juzna };
-            niz.pushregion;
+            niz.push(pom);
             pom = { region: "6", broj: kim };
             niz.push(pom);
+            
             res.status(200).send(JSON.stringify(niz));
         })
         .catch(err => console.log(err));
@@ -372,8 +373,8 @@ app.get('/monthCuts', (req, res) => {
 //treci grafik prvi deo, na osnovu prosledjenog regiona vraca broj zasadjenih i posecenih za celu godinu
 
 app.get('/regionPlantingsAndCuts', (req, res) => {
-    let region = req.body.region;
-    let query = 'SELECT posecenabr, zasadjenabr FROM \"Suma\" WHERE godina = ? AND \"regID\" = ?';
+    let region = req.query.region;
+    let query = 'SELECT mesec, posecenabr, zasadjenabr FROM \"Suma\" WHERE godina = ? AND \"regID\" = ?';
     let d = new Date();
     const params = [d.getFullYear() - 1, region];
     client.execute(query, params, { prepare: true })
@@ -456,58 +457,32 @@ app.get('/regionPlantingsAndCuts', (req, res) => {
                     decPosecena += e.posecenabr;
                 }
             });
-            let nizZasadjena = [];
-            let nizPosecena = [];
-            let pom = { mesec: "Jan", broj: janZasadjena };
-            nizZasadjena.push(pom);
-            pom = { mesec: "Jan", broj: janPosecena };
-            nizPosecena.push(pom);
-            pom = { mesec: "Feb", broj: febZasadjena };
-            nizZasadjena.push(pom);
-            pom = { mesec: "Feb", broj: febPosecena };
-            nizPosecena.push(pom);
-            pom = { mesec: "Mar", broj: marZasadjena };
-            nizZasadjena.push(pom);
-            pom = { mesec: "Mar", broj: marPosecena };
-            nizPosecena.push(pom);
-            pom = { mesec: "Apr", broj: aprZasadjena };
-            nizZasadjena.push(pom);
-            pom = { mesec: "Apr", broj: aprPosecena };
-            nizPosecena.push(pom);
-            pom = { mesec: "Maj", broj: majZasadjena };
-            nizZasadjena.push(pom);
-            pom = { mesec: "Maj", broj: majPosecena };
-            nizPosecena.push(pom);
-            pom = { mesec: "Jun", broj: junZasadjena };
-            nizZasadjena.push(pom);
-            pom = { mesec: "Jun", broj: junPosecena };
-            nizPosecena.push(pom);
-            pom = { mesec: "Jul", broj: julZasadjena };
-            nizZasadjena.push(pom);
-            pom = { mesec: "Jul", broj: julPosecena };
-            nizPosecena.push(pom);
-            pom = { mesec: "Avg", broj: avgZasadjena };
-            nizZasadjena.push(pom);
-            pom = { mesec: "Avg", broj: avgPosecena };
-            nizPosecena.push(pom);
-            pom = { mesec: "Sep", broj: sepZasadjena };
-            nizZasadjena.push(pom);
-            pom = { mesec: "Sep", broj: sepPosecena };
-            nizPosecena.push(pom);
-            pom = { mesec: "Okt", broj: oktZasadjena };
-            nizZasadjena.push(pom);
-            pom = { mesec: "Okt", broj: oktPosecena };
-            nizPosecena.push(pom);
-            pom = { mesec: "Nov", broj: novZasadjena };
-            nizZasadjena.push(pom);
-            pom = { mesec: "Nov", broj: novPosecena };
-            nizPosecena.push(pom);
-            pom = { mesec: "Dec", broj: decZasadjena };
-            nizZasadjena.push(pom);
-            pom = { mesec: "Dec", broj: decPosecena };
-            nizPosecena.push(pom);
-            let returnArr = { posecena: nizPosecena, zasadjena: nizZasadjena };
-            res.status(200).send(JSON.stringify(returnArr));
+            let niz = [];
+            let pom = { mesec: "Jan", brojZ: janZasadjena, brojP: janPosecena };
+            niz.push(pom);
+            pom = { mesec: "Feb", brojZ: febZasadjena , brojP: febPosecena };
+            niz.push(pom);
+            pom = { mesec: "Mar", brojZ: marZasadjena , brojP: marPosecena };
+            niz.push(pom);
+            pom = { mesec: "Apr", brojZ: aprZasadjena , brojP: aprPosecena };
+            niz.push(pom);
+            pom = { mesec: "Maj", brojZ: majZasadjena , brojP: majPosecena };
+            niz.push(pom);
+            pom = { mesec: "Jun", brojZ: junZasadjena , brojP: junPosecena };
+            niz.push(pom);
+            pom = { mesec: "Jul", brojZ: julZasadjena , brojP: julPosecena };
+            niz.push(pom);
+            pom = { mesec: "Avg", brojZ: avgZasadjena, brojP: avgPosecena };
+            niz.push(pom);
+            pom = { mesec: "Sep", brojZ: sepZasadjena, brojP: sepPosecena };
+            niz.push(pom);
+            pom = { mesec: "Okt", brojZ: oktZasadjena , brojP: oktPosecena };
+            niz.push(pom);
+            pom = { mesec: "Nov", brojZ: novZasadjena , brojP: novPosecena };
+            niz.push(pom);
+            pom = { mesec: "Dec", brojZ: decZasadjena , brojP: decPosecena };
+            niz.push(pom);
+            res.status(200).send(JSON.stringify(niz));
         })
         .catch(err => console.log(err));
 });
@@ -527,7 +502,7 @@ app.get('/regionTreesPlantingsAndCuts', (req, res) => {
                 let pom = { id: e.drvoID, ime: e.naziv, zasadjeno: 0, poseceno: 0 };
                 niz.push(pom);
             });
-            let region = req.body.region;
+            let region = req.query.region;
             query = 'SELECT \"drvoID\", posecenabr, zasadjenabr FROM \"Suma\" WHERE godina = ? AND \"regID\" = ?';
             let d = new Date();
             const params = [d.getFullYear() - 1, region];
@@ -554,7 +529,7 @@ app.get('/regionTreesPlantingsAndCuts', (req, res) => {
 
 //treci grafik drugi deo,na osnovu prosledjenog regiona vraca povrsinu zasadjenih i posecenih drveca za celu proslu godinu
 app.get('/regionSpaceTreesPlantingsAndCuts', (req, res) => {
-    let region = req.body.region;
+    let region = req.query.region;
     let query = 'SELECT posecenapovrs, zasadjenapovrs FROM \"Suma\" WHERE godina = ? AND \"regID\" = ?';
     let d = new Date();
     const params = [d.getFullYear() - 1, region];
