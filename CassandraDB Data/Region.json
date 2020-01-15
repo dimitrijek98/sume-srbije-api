@@ -1,0 +1,30 @@
+﻿{
+  "regID" : 5,
+  "ime" : "Juzna Srbija",
+  "povrsina" : 16200.0
+}
+{
+  "regID" : 1,
+  "ime" : "Vojvodina",
+  "povrsina" : 21614.0
+}
+{
+  "regID" : 2,
+  "ime" : "Zapadna Srbija",
+  "povrsina" : 17879.0
+}
+{
+  "regID" : 4,
+  "ime" : "Istocna Srbija",
+  "povrsina" : 10053.0
+}
+{
+  "regID" : 6,
+  "ime" : "Kosovo i Metohija",
+  "povrsina" : 10887.0
+}
+{
+  "regID" : 3,
+  "ime" : "Centralna Srbija",
+  "povrsina" : 8614.0
+}

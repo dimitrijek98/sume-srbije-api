@@ -1,0 +1,76 @@
+CREATE TABLE "Region" (
+    "regID" int,
+    ime text,
+    povrsina double,
+    PRIMARY KEY ("regID")
+)
+WITH
+  bloom_filter_fp_chance=0.01
+  AND compaction={ 'class' : 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy' }
+  AND compression={ 'sstable_compression' : 'org.apache.cassandra.io.compress.LZ4Compressor' }
+  AND caching={'keys':'ALL', 'rows_per_partition':'NONE'};
+
+CREATE TABLE "Tip" (
+    "tipID" int,
+    tip text,
+    PRIMARY KEY ("tipID")
+)
+WITH
+  bloom_filter_fp_chance=0.01
+  AND compaction={ 'class' : 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy' }
+  AND compression={ 'sstable_compression' : 'org.apache.cassandra.io.compress.LZ4Compressor' }
+  AND caching={'keys':'ALL', 'rows_per_partition':'NONE'};
+
+CREATE TABLE "Drvo" (
+    "drvoID" int,
+	"tipID" int,
+    naziv text,
+    PRIMARY KEY ("drvoID","tipID")
+)
+WITH
+  bloom_filter_fp_chance=0.01
+  AND compaction={ 'class' : 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy' }
+  AND compression={ 'sstable_compression' : 'org.apache.cassandra.io.compress.LZ4Compressor' }
+  AND caching={'keys':'ALL', 'rows_per_partition':'NONE'};
+
+
+CREATE TABLE "Suma" (
+    godina int,
+    mesec text,
+    "regID" int,
+    "drvoID" int,
+    posecenaBr int,
+    posecenaPovrs double,
+    zasadjenaBr int,
+    zasadjenaPovrs double,
+    PRIMARY KEY ((godina) , mesec, "regID", "drvoID")
+)
+WITH
+  bloom_filter_fp_chance=0.01
+  AND compaction={ 'class' : 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy' }
+  AND compression={ 'sstable_compression' : 'org.apache.cassandra.io.compress.LZ4Compressor' }
+  AND caching={'keys':'ALL', 'rows_per_partition':'NONE'};
+  
+create index RegionIndex on "Suma" ("regID");
+  
+CREATE TABLE "Admin" (
+    email text,
+    password text,
+    PRIMARY KEY (email)
+)
+WITH
+  bloom_filter_fp_chance=0.01
+  AND compaction={ 'class' : 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy' }
+  AND compression={ 'sstable_compression' : 'org.apache.cassandra.io.compress.LZ4Compressor' }
+  AND caching={'keys':'ALL', 'rows_per_partition':'NONE'};
+  
+CREATE TABLE "IDs" (
+  id_name text,
+  next_id int,
+  PRIMARY KEY (id_name)
+)
+WITH
+  bloom_filter_fp_chance=0.01
+  AND compaction={ 'class' : 'org.apache.cassandra.db.compaction.SizeTieredCompactionStrategy' }
+  AND compression={ 'sstable_compression' : 'org.apache.cassandra.io.compress.LZ4Compressor' }
+  AND caching={'keys':'ALL', 'rows_per_partition':'NONE'};

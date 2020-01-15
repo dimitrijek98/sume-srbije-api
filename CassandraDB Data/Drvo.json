@@ -1,0 +1,50 @@
+﻿{
+  "drvoID" : 5,
+  "tipID" : 1,
+  "naziv" : "Breza"
+}
+{
+  "drvoID" : 10,
+  "tipID" : 2,
+  "naziv" : "Tisa"
+}
+{
+  "drvoID" : 1,
+  "tipID" : 1,
+  "naziv" : "Lipa"
+}
+{
+  "drvoID" : 8,
+  "tipID" : 2,
+  "naziv" : "Smrca"
+}
+{
+  "drvoID" : 2,
+  "tipID" : 1,
+  "naziv" : "Zalosna vrba"
+}
+{
+  "drvoID" : 4,
+  "tipID" : 1,
+  "naziv" : "Topola"
+}
+{
+  "drvoID" : 7,
+  "tipID" : 2,
+  "naziv" : "Jela"
+}
+{
+  "drvoID" : 6,
+  "tipID" : 2,
+  "naziv" : "Crni bor"
+}
+{
+  "drvoID" : 9,
+  "tipID" : 2,
+  "naziv" : "Omorika"
+}
+{
+  "drvoID" : 3,
+  "tipID" : 1,
+  "naziv" : "Hrast"
+}
