@@ -20,7 +20,7 @@ app.post('/login', (req, res) => {
     console.log(req.body);
     let email = req.body.email;
     let password = req.body.password;
-    const query = 'SELECT * FROM \"Admin\" WHERE email = ?';
+    let query = 'SELECT * FROM \"Admin\" WHERE email = ?';
     const params = [email];
     client.execute(query, params, { prepare: true })
         .then(response => {
@@ -40,7 +40,7 @@ app.post('/login', (req, res) => {
 
 //niz drveca za dropbox pri dodavanju mesecne statistike
 app.get('/AllTrees', (req, res) => {
-    const query = 'SELECT \"drvoID\", naziv FROM \"Drvo\"';
+    let query = 'SELECT \"drvoID\", naziv FROM \"Drvo\"';
     client.execute(query)
         .then(response => {
             if (response.rows.length < 1) {
@@ -59,7 +59,7 @@ app.get('/AllTrees', (req, res) => {
 
 //niz regiona za dropbox pri dodavanju mesecne statistike
 app.get('/AllRegions', (req, res) => {
-    const query = 'SELECT \"regID\", ime FROM \"Region\"';
+    let query = 'SELECT \"regID\", ime FROM \"Region\"';
     client.execute(query)
         .then(response => {
             if (response.rows.length < 1) {
@@ -79,7 +79,7 @@ app.get('/AllRegions', (req, res) => {
 //brisanje drveta iz baze
 app.post('/deleteTree', (req, res) => {
     let drvo = req.body.drvo;
-    const query = 'DELETE FROM \"Drvo\" WHERE \"drvoID\" = ?';
+    let query = 'DELETE FROM \"Drvo\" WHERE \"drvoID\" = ?';
     const params = [drvo];
     client.execute(query, params, { prepare: true })
         .then(response => {
@@ -90,27 +90,27 @@ app.post('/deleteTree', (req, res) => {
 
 //unos nove statistike
 app.post('/newStatistics', (req, res) => {
-    let query = 'SELECT next_id FROM "IDs" WHERE id_name = ?';
-    let suma;
-    client.execute(query, ['suma'])
-        .then(response => {
-            if (response.rows.length < 1) {
-                res.status(404).send("ID not found.");
-                return;
-            }
-            suma = response.rows[0].next_id;
-        })
-        .catch(err => console.log(err));
-    let id = suma + 1;
-    query = 'UPDATE "IDs" SET next_id = ? WHERE id_name= ?';
-    client.execute(query, [id, 'suma'])
-        .then(response => {
-            if (response.rows.length < 1) {
-                res.status(404).send("ID not found.");
-                return;
-            }
-        })
-        .catch(err => console.log(err));
+    /* let query = 'SELECT next_id FROM "IDs" WHERE id_name = ?';
+     let suma;
+     client.execute(query, ['suma'])
+         .then(response => {
+             if (response.rows.length < 1) {
+                 res.status(404).send("ID not found.");
+                 return;
+             }
+             suma = response.rows[0].next_id;
+         })
+         .catch(err => console.log(err));
+     let id = suma + 1;
+     query = 'UPDATE "IDs" SET next_id = ? WHERE id_name= ?';
+     client.execute(query, [id, 'suma'])
+         .then(response => {
+             if (response.rows.length < 1) {
+                 res.status(404).send("ID not found.");
+                 return;
+             }
+         })
+         .catch(err => console.log(err));*/
     var d = new Date();
     var month = new Array();
     month[0] = "Januar";
@@ -133,8 +133,8 @@ app.post('/newStatistics', (req, res) => {
     let brZasadjena = req.body.brZasadjena;
     let povrsPosecena = req.body.povrsPosecena;
     let povrsZasadjena = req.body.povrsZasadjena;
-    query = 'INSER INTO \"Suma\" (\"sumaID\", mesec, godina, \"regID\", \"drvoID\", posecenabr, posecenapovrs, zasadjenabr, zasadjenapovrs) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?))';
-    const params = [suma, mesec, godina, region, drvo, brPosecena, povrsPosecena, brZasadjena, povrsZasadjena];
+    let query = 'INSERT INTO \"Suma\" (godina, mesec, \"regID\", \"drvoID\", posecenabr, posecenapovrs, zasadjenabr, zasadjenapovrs) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
+    const params = [godina, mesec, region, drvo, brPosecena, povrsPosecena, brZasadjena, povrsZasadjena];
     client.execute(query, params, { prepare: true })
         .then(response => {
             if (response.rows.length < 1) {
@@ -171,19 +171,19 @@ app.post('/newTreeAndStatistics', (req, res) => {
         .catch(err => console.log(err));
     let tip = req.body.tip;
     let naziv = req.body.naziv;
-    query = 'INSER INTO \"Drvo\" (\"drvoID\", \"tipID\", naziv) VALUES (?, ?, ?))';
+    query = 'INSERT INTO \"Drvo\" (\"drvoID\", \"tipID\", naziv) VALUES (?, ?, ?)';
     let params = [drvo, tip, naziv];
     client.execute(query, params, { prepare: true })
         .then(response => {
             if (response.rows.length < 1) {
-                res.status(404).send("Tree not found.");
+                res.status(404).send("Tree not added.");
                 return;
             }
             //.status(200).send("Tree has been added.");
         })
         .catch(err => console.log(err));
 
-    query = 'SELECT next_id FROM "IDs" WHERE id_name = ?';
+    /*query = 'SELECT next_id FROM "IDs" WHERE id_name = ?';
     let suma;
     client.execute(query, ['suma'])
         .then(response => {
@@ -203,7 +203,7 @@ app.post('/newTreeAndStatistics', (req, res) => {
                 return;
             }
         })
-        .catch(err => console.log(err));
+        .catch(err => console.log(err));*/
     var d = new Date();
     var month = new Array();
     month[0] = "Januar";
@@ -225,8 +225,8 @@ app.post('/newTreeAndStatistics', (req, res) => {
     let brZasadjena = req.body.brZasadjena;
     let povrsPosecena = req.body.povrsPosecena;
     let povrsZasadjena = req.body.povrsZasadjena;
-    query = 'INSER INTO \"Suma\" (\"sumaID\", mesec, godina, \"regID\", \"drvoID\", posecenabr, posecenapovrs, zasadjenabr, zasadjenapovrs) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?))';
-    params = [suma, mesec, godina, region, drvo, brPosecena, povrsPosecena, brZasadjena, povrsZasadjena];
+    query = 'INSERT INTO \"Suma\" (godina, mesec, \"regID\", \"drvoID\", posecenabr, posecenapovrs, zasadjenabr, zasadjenapovrs) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
+    params = [godina, mesec, region, drvo, brPosecena, povrsPosecena, brZasadjena, povrsZasadjena];
     client.execute(query, params, { prepare: true })
         .then(response => {
             if (response.rows.length < 1) {
@@ -241,9 +241,9 @@ app.post('/newTreeAndStatistics', (req, res) => {
 //klijentsi deo
 //prvi grafik, vraca se broj zasadjenih u svakom mesecu na celoj teritoriji
 app.get('/AllPlantings', (req, res) => {
-    const query = 'SELECT mesec, zasadjenabr FROM \"Suma\" WHERE godina = ?';
+    let query = 'SELECT mesec, zasadjenabr FROM \"Suma\" WHERE godina = ?';
     let d = new Date();
-    const params = [d.getFullYear()];//idi na sve -1 da bi sve isao za proslu godinu
+    const params = [d.getFullYear() - 1];//idi na sve -1 da bi sve isao za proslu godinu
     client.execute(query, params, { prepare: true })
         .then(response => {
             if (response.rows.length < 1) {
@@ -321,9 +321,9 @@ app.get('/AllPlantings', (req, res) => {
 //drugi grafik, na osnovu prosledjenog meseca vraca broj posecenih u svakoj regiji
 app.get('/monthCuts', (req, res) => {
     let mesec = req.body.mesec;
-    const query = 'SELECT \"regID\", posecenabr FROM \"Suma\" WHERE godina = ? AND mesec = ?';
+    let query = 'SELECT \"regID\", posecenabr FROM \"Suma\" WHERE godina = ? AND mesec = ?';
     let d = new Date();
-    const params = [d.getFullYear(), mesec];
+    const params = [d.getFullYear() - 1, mesec];
     client.execute(query, params, { prepare: true })
         .then(response => {
             if (response.rows.length < 1) {
@@ -373,9 +373,9 @@ app.get('/monthCuts', (req, res) => {
 
 app.get('/regionPlantingsAndCuts', (req, res) => {
     let region = req.body.region;
-    const query = 'SELECT posecenabr, zasadjenabr FROM \"Suma\" WHERE godina = ? AND \"regID\" = ?';
+    let query = 'SELECT posecenabr, zasadjenabr FROM \"Suma\" WHERE godina = ? AND \"regID\" = ?';
     let d = new Date();
-    const params = [d.getFullYear(), region];
+    const params = [d.getFullYear() - 1, region];
     client.execute(query, params, { prepare: true })
         .then(response => {
             if (response.rows.length < 1) {
@@ -407,57 +407,57 @@ app.get('/regionPlantingsAndCuts', (req, res) => {
             let novPosecena = 0;
             let decPosecena = 0;
             response.rows.forEach(e => {
-                if (e.mesec === "Januar"){
+                if (e.mesec === "Januar") {
                     janZasadjena += e.zasadjenabr;
                     janPosecena += e.posecenabr;
                 }
-                else if (e.mesec === "Februar"){
+                else if (e.mesec === "Februar") {
                     febZasadjena += e.zasadjenabr;
                     febPosecena += e.posecenabr;
                 }
-                else if (e.mesec === "Mart"){
+                else if (e.mesec === "Mart") {
                     marZasadjena += e.zasadjenabr;
                     marPosecena += e.posecenabr;
                 }
-                else if (e.mesec === "April"){
+                else if (e.mesec === "April") {
                     aprZasadjena += e.zasadjenabr;
                     aprPosecena += e.posecenabr;
                 }
-                else if (e.mesec === "Maj"){
+                else if (e.mesec === "Maj") {
                     majZasadjena += e.zasadjenabr;
                     majPosecena += e.posecenabr;
                 }
-                else if (e.mesec === "Jun"){
+                else if (e.mesec === "Jun") {
                     junZasadjena += e.zasadjenabr;
                     junPosecena += e.posecenabr;
                 }
-                else if (e.mesec === "Jul"){
+                else if (e.mesec === "Jul") {
                     julZasadjena += e.zasadjenabr;
                     julPosecena += e.posecenabr;
                 }
-                else if (e.mesec === "Avgust"){
+                else if (e.mesec === "Avgust") {
                     avgZasadjena += e.zasadjenabr;
                     avgPosecena += e.posecenabr;
                 }
-                else if (e.mesec === "Septembar"){
+                else if (e.mesec === "Septembar") {
                     sepZasadjena += e.zasadjenabr;
                     sepPosecena += e.posecenabr;
                 }
-                else if (e.mesec === "Oktobar"){
+                else if (e.mesec === "Oktobar") {
                     oktZasadjena += e.zasadjenabr;
                     oktPosecena += e.posecenabr;
                 }
-                else if (e.mesec === "Novembar"){
+                else if (e.mesec === "Novembar") {
                     novZasadjena += e.zasadjenabr;
                     novPosecena += e.posecenabr;
                 }
-                else if (e.mesec === "Decembar"){
+                else if (e.mesec === "Decembar") {
                     decZasadjena += e.zasadjenabr;
                     decPosecena += e.posecenabr;
                 }
             });
             let nizZasadjena = [];
-            let nizPosecena =[];
+            let nizPosecena = [];
             let pom = { mesec: "Jan", broj: janZasadjena };
             nizZasadjena.push(pom);
             pom = { mesec: "Jan", broj: janPosecena };
@@ -506,17 +506,70 @@ app.get('/regionPlantingsAndCuts', (req, res) => {
             nizZasadjena.push(pom);
             pom = { mesec: "Dec", broj: decPosecena };
             nizPosecena.push(pom);
-            let returnArr = {posecena:nizPosecena, zasadjena:nizZasadjena};
+            let returnArr = { posecena: nizPosecena, zasadjena: nizZasadjena };
             res.status(200).send(JSON.stringify(returnArr));
         })
         .catch(err => console.log(err));
 });
 
-//treci grafik drugi deo,
-//treci grafik treci deo,
-/*
-const query = 'SELECT name, email FROM users WHERE key = ?';
-client.execute(query, [ 'someone' ])
-  .then(result => console.log('User with email %s', result.rows[0].email));
-*/
-//client.execute(query, params, { prepare: true }).then(result => console.log('Row updated on the cluster'));
+//treci grafik drugi deo,na osnovu prosledjenog regiona vraca broj zasadjenih i posecenih drveca za konkretno drvo za celu proslu godinu
+
+app.get('/regionTreesPlantingsAndCuts', (req, res) => {
+    let niz = [];
+    let query = 'SELECT \"drvoID\", naziv FROM \"Drvo\"';
+    client.execute(query)
+        .then(response => {
+            if (response.rows.length < 1) {
+                res.status(404).send("Trees not found.");
+                return;
+            }
+            response.rows.forEach(e => {
+                let pom = { id: e.drvoID, ime: e.naziv, zasadjeno: 0, poseceno: 0 };
+                niz.push(pom);
+            });
+            let region = req.body.region;
+            query = 'SELECT \"drvoID\", posecenabr, zasadjenabr FROM \"Suma\" WHERE godina = ? AND \"regID\" = ?';
+            let d = new Date();
+            const params = [d.getFullYear() - 1, region];
+            client.execute(query, params, { prepare: true })
+                .then(response => {
+                    if (response.rows.length < 1) {
+                        res.status(404).send("All trees plantings and cuts not found.");
+                        return;
+                    }
+                    niz.forEach(drvo => {
+                        response.rows.forEach(e => {
+                            if (drvo.id === e.drvoID) {
+                                drvo.zasadjeno += e.zasadjenabr;
+                                drvo.poseceno += e.posecenabr;
+                            }
+                        });
+                    });
+                    res.status(200).send(JSON.stringify(niz));
+                })
+                .catch(err => console.log(err));
+        })
+        .catch(err => console.log(err));
+});
+
+//treci grafik drugi deo,na osnovu prosledjenog regiona vraca povrsinu zasadjenih i posecenih drveca za celu proslu godinu
+app.get('/regionSpaceTreesPlantingsAndCuts', (req, res) => {
+    let region = req.body.region;
+    let query = 'SELECT posecenapovrs, zasadjenapovrs FROM \"Suma\" WHERE godina = ? AND \"regID\" = ?';
+    let d = new Date();
+    const params = [d.getFullYear() - 1, region];
+    client.execute(query, params, { prepare: true })
+        .then(response => {
+            if (response.rows.length < 1) {
+                res.status(404).send("All trees space plantings and cuts not found.");
+                return;
+            }
+            let result = { zasadjeno: 0, poseceno: 0 };
+            response.rows.forEach(e => {
+                result.zasadjeno += e.zasadjenapovrs;
+                result.poseceno += e.posecenapovrs;
+            });
+            res.status(200).send(JSON.stringify(result));
+        })
+        .catch(err => console.log(err));
+});
